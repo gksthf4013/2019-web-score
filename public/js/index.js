@@ -41,8 +41,7 @@ function getList(page) {
 }
 
 function pagerMaker(total, page) {
-	var cnt = Math.ceil(total/10);
-	var st = 
+	var cnt = Math.ceil(total/10); 
   html  = '<li class="page-item page-prev">';
   html += '<span class="page-link"><i class="fas fa-angle-double-left"></i></span>';
 	html += '</li>';
