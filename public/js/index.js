@@ -11,10 +11,13 @@ function getList() {
 	$.ajax({
 		type: "post",
 		url: scoreURL.rURL,
-		data: "data",
-		dataType: "dataType",
-		success: function (response) {
+		dataType: "json",
+		success: function (res) {
 			
+		},
+		error: function(xhr) {
+			alert("통신이 실패했습니다 관리자에게 문의하세요.");
+		  console.log(xhr);
 		}
 	});
 }
