@@ -5,3 +5,16 @@ var scoreURL = {
 	uURL: site + "/score_up.php",
 	dURL: site + "/score_del.php"
 }
+
+getList();
+function getList() {
+	$.ajax({
+		type: "post",
+		url: scoreURL.rURL,
+		data: "data",
+		dataType: "dataType",
+		success: function (response) {
+			
+		}
+	});
+}
