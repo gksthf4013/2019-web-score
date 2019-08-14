@@ -34,12 +34,14 @@ function getList(page) {
 			for (var i in res.student) {
 				html = '<tr>';
 				html += '<td>' + res.student[i].stdname + '</td>';
-				html += '<td>' + res.student[i].kor + '</td>';
-				html += '<td>' + res.student[i].eng + '</td>';
-				html += '<td>' + res.student[i].math + '</td>';
+				html += '<td>' + res.student[i].kor + '점</td>';
+				html += '<td>' + res.student[i].eng + '점</td>';
+				html += '<td>' + res.student[i].math + '점</td>';
 				html += '<td class="text-center">';
-				html += '<button class="btn btn-success" onclick="upData(this, '+ res.student[i].id +');">수정</button> ';
-				html += '<button class="btn btn-danger" onclick="delData(this, '+ res.student[i].id +');">삭제</button>';
+				html += '<button class="btn btn-success" onclick="upData(this, ' + res.student[i].id + ');">수정</button> ';
+				html += '<button class="btn btn-danger" onclick="delData(this, ' + res.student[i].id + ');">삭제</button>';
+				html += '<button class="btn btn-primary d-none" onclick="upSave(this, ' + res.student[i].id + ');">저장</button> ';
+				html += '<button class="btn btn-info d-none" onclick="upCancel(this, ' + res.student[i].id + ');">취소</button>';
 				html += '</td>';
 				html += '</tr>';
 				$(".score-tb").find("tbody").append(html);
@@ -56,7 +58,34 @@ function getList(page) {
 //리스트 수정하기
 function upData(bt, id) {
 	// console.log(bt, $(bt), id);
-	
+	var $bt = $(bt);
+	var $td = $bt.parent();
+	var $tr = $td.parent();
+	for (var i = 0, txt = '', type = 'text'; i < 4; i++) {
+		txt = $tr.children("td").eq(i).text();
+		if (i > 0) {
+			txt = txt.replace("점", "");
+			type = "number";
+		}
+		html = '<input type="' + type + '" class="form-control" value="' + txt + '">';
+		$tr.children("td").eq(i).html(html);
+	}
+	$td.children(".btn").toggleClass("d-none");
+}
+
+function upSave(bt, id) {
+}
+
+function upCancel(bt, id) {
+	var $bt = $(bt);
+	var $td = $bt.parent();
+	var $tr = $td.parent();
+	for (var i = 0, txt = ''; i < 4; i++) {
+		txt = $tr.children("td").eq(i).children("input").val();
+		if (i > 0) txt += "점";
+		$tr.children("td").eq(i).html(txt);
+	}
+	$td.children(".btn").toggleClass("d-none");
 }
 
 
@@ -77,6 +106,53 @@ function delData(bt, id) {
 		});
 	};
 }
+
+
+// 리스트 저장하기
+$("#bt-save").click(function () {
+	var stdname = $.trim($("#stdname").val());
+	var kor = Number($("#kor").val()); // Number(); => 문자열을 숫자열로 바꿔줌
+	var eng = Number($("#eng").val());
+	var math = Number($("#math").val());
+	if (kor == 0) kor = "0";
+	if (eng == 0) eng = "0";
+	if (math == 0) math = "0";
+	if (stdname == "") {
+		alert("학생 이름을 입력해 주세요.");
+		$("#stdname").focus();
+		return;
+	}
+	if (kor == "" || kor < 0 || kor > 100) { // || = or 과 같은 뜻
+		alert("올바른 국어점수를 입력하세요.");
+		$("#kor").focus();
+		return;
+	}
+	if (eng == "" || eng < 0 || eng > 100) { // || = or 과 같은 뜻
+		alert("올바른 영어점수를 입력하세요.");
+		$("#eng").focus();
+		return;
+	}
+	if (math == "" || math < 0 || math > 100) { // || = or 과 같은 뜻
+		alert("올바른 수학점수를 입력하세요.");
+		$("#math").focus();
+		return;
+	}
+	$.ajax({
+		type: "post",
+		url: scoreURL.cURL,
+		data: {
+			stdname: stdname,
+			kor: kor,
+			eng: eng,
+			math: math
+		},
+		dataType: "json",
+		success: function (res) {
+			if (res.code == 200) getList(nowPage);
+			else alert("데이터 처리가 실패했습니다. 관리자에게 문의하세요.");
+		}
+	});
+});
 
 
 // 페이저 생성
@@ -162,49 +238,3 @@ function deletMaker() {
 	});
 }
  */
-
-// 데이터 저장
-$("#bt-save").click(function(){
-	var stdname = $.trim($("#stdname").val());
-	var kor = Number($("#kor").val());  // Number(); => 문자열을 숫자열로 바꿔줌
-	var eng = Number($("#eng").val());
-	var math = Number($("#math").val());
-	if(kor == 0) kor = "0";
-	if(eng == 0) eng = "0";
-	if(math == 0) math = "0";
-	if(stdname == "") {
-		alert("학생 이름을 입력해 주세요.");
-		$("#stdname").focus();
-		return;
-	}
-	if(kor == "" || kor<0 || kor>100) {  // || = or 과 같은 뜻
-		alert("올바른 국어점수를 입력하세요.");
-		$("#kor").focus();
-		return;
-	}
-	if(eng == "" || eng<0 || eng>100) {  // || = or 과 같은 뜻
-		alert("올바른 영어점수를 입력하세요.");
-		$("#eng").focus();
-		return;
-	}
-	if(math == "" || math<0 || math>100) {  // || = or 과 같은 뜻
-		alert("올바른 수학점수를 입력하세요.");
-		$("#math").focus();
-		return;
-	}
-	$.ajax({
-		type: "post",
-		url: scoreURL.cURL,
-		data: {
-			stdname: stdname,
-			kor: kor,
-			eng: eng,
-			math: math
-		},
-		dataType: "json",
-		success: function (res) {
-			if (res.code == 200) getList(nowPage);
-			else alert("데이터 처리가 실패했습니다. 관리자에게 문의하세요.");
-		}
-	});
-});
