@@ -40,7 +40,7 @@ function getList(page) {
 				html += '<td class="text-center">';
 				html += '<button class="btn btn-success" onclick="upData(this, ' + res.student[i].id + ');">수정</button> ';
 				html += '<button class="btn btn-danger" onclick="delData(this, ' + res.student[i].id + ');">삭제</button>';
-				html += '<button class="btn btn-primary d-none" onclick="upSave(this, ' + res.student[i].id + ');">저장</button> ';
+				html += '<button class="btn btn-primary d-none" onclick="dataSave(this, ' + res.student[i].id + ');">저장</button> ';
 				html += '<button class="btn btn-info d-none" onclick="upCancel(this, ' + res.student[i].id + ');">취소</button>';
 				html += '</td>';
 				html += '</tr>';
@@ -74,6 +74,7 @@ function upData(bt, id) {
 }
 
 function upSave(bt, id) {
+	var
 }
 
 function upCancel(bt, id) {
@@ -81,7 +82,7 @@ function upCancel(bt, id) {
 	var $td = $bt.parent();
 	var $tr = $td.parent();
 	for (var i = 0, txt = ''; i < 4; i++) {
-		txt = $tr.children("td").eq(i).children("input").val();
+		txt = $tr.find("input").eq(i).val();
 		if (i > 0) txt += "점";
 		$tr.children("td").eq(i).html(txt);
 	}
@@ -109,50 +110,103 @@ function delData(bt, id) {
 
 
 // 리스트 저장하기
-$("#bt-save").click(function () {
-	var stdname = $.trim($("#stdname").val());
-	var kor = Number($("#kor").val()); // Number(); => 문자열을 숫자열로 바꿔줌
-	var eng = Number($("#eng").val());
-	var math = Number($("#math").val());
-	if (kor == 0) kor = "0";
-	if (eng == 0) eng = "0";
-	if (math == 0) math = "0";
-	if (stdname == "") {
-		alert("학생 이름을 입력해 주세요.");
-		$("#stdname").focus();
-		return;
-	}
-	if (kor == "" || kor < 0 || kor > 100) { // || = or 과 같은 뜻
-		alert("올바른 국어점수를 입력하세요.");
-		$("#kor").focus();
-		return;
-	}
-	if (eng == "" || eng < 0 || eng > 100) { // || = or 과 같은 뜻
-		alert("올바른 영어점수를 입력하세요.");
-		$("#eng").focus();
-		return;
-	}
-	if (math == "" || math < 0 || math > 100) { // || = or 과 같은 뜻
-		alert("올바른 수학점수를 입력하세요.");
-		$("#math").focus();
-		return;
-	}
-	$.ajax({
-		type: "post",
-		url: scoreURL.cURL,
-		data: {
-			stdname: stdname,
-			kor: kor,
-			eng: eng,
-			math: math
-		},
-		dataType: "json",
-		success: function (res) {
-			if (res.code == 200) getList(nowPage);
-			else alert("데이터 처리가 실패했습니다. 관리자에게 문의하세요.");
+function dataSave(); {
+	var url = scoreURL.cURL;
+	var option;
+	var $tr = $(bt).parent().parent();
+	var $input = $tr.find("input");
+	var values = [];
+	var comment = [];
+	comment[0] = "이름을";
+	comment[1] = "올바른 국어 점수를";
+	comment[2] = "올바른 영어 점수를";
+	comment[3] = "올바른 수학 점수를";
+	for (var i = 0; i < $input.length; i++) {
+		if (i == 0) {
+			if ($input.eq(i).val() == "") {
+				alert(comment[i] + "입력하세요.");
+				$input.eq(i).focus();
+				return;
+			}
+		} else {
+			if ($.trim($input.eq(i).val()) == "" || Number($input.eq(i).val()) < 0 || Number($input.eq(i).val()) > 100) { // || = or 과 같은 뜻
+			alert(comment[i] + "입력하세요.");
+			$input.eq(i).focus();
+			return;
 		}
-	});
+	}
+}
+
+option = {
+	stdname: $.trim($input.eq(0).val()),
+	kor: $input.eq(1).val(),
+	eng: $input.eq(2).val(),
+	math: $input.eq(3).val(),
+}
+
+if (id > 0) {
+	url = scoreURL.uURL;
+	option.id = id;
+}
+$.ajax({
+	type: "post",
+	url: url,
+	data: {
+		stdname: stdname,
+		kor: kor,
+		eng: eng,
+		math: math
+	},
+	dataType: "json",
+	success: function (res) {
+		if (res.code == 200) getList(nowPage);
+		else alert("데이터 처리가 실패했습니다. 관리자에게 문의하세요.");
+	}
 });
+
+/* var stdname = $.trim($("#stdname").val());
+var kor = Number($("#kor").val()); // Number(); => 문자열을 숫자열로 바꿔줌
+var eng = Number($("#eng").val());
+var math = Number($("#math").val());
+if (kor == 0) kor = "0";
+if (eng == 0) eng = "0";
+if (math == 0) math = "0";
+if (stdname == "") {
+	alert("이름을 입력하세요.");
+	$("#stdname").focus();
+	return;
+}
+if (kor == "" || kor < 0 || kor > 100) { // || = or 과 같은 뜻
+	alert("올바른 국어점수를 입력하세요.");
+	$("#kor").focus();
+	return;
+}
+if (eng == "" || eng < 0 || eng > 100) { // || = or 과 같은 뜻
+	alert("올바른 영어점수를 입력하세요.");
+	$("#eng").focus();
+	return;
+}
+if (math == "" || math < 0 || math > 100) { // || = or 과 같은 뜻
+	alert("올바른 수학점수를 입력하세요.");
+	$("#math").focus();
+	return;
+}
+$.ajax({
+	type: "post",
+	url: scoreURL.cURL,
+	data: {
+		stdname: stdname,
+		kor: kor,
+		eng: eng,
+		math: math
+	},
+	dataType: "json",
+	success: function (res) {
+		if (res.code == 200) getList(nowPage);
+		else alert("데이터 처리가 실패했습니다. 관리자에게 문의하세요.");
+	}
+}); */
+}
 
 
 // 페이저 생성
